@@ -52,15 +52,7 @@ const MonitorsConfigMenuToggle = GObject.registerClass(
 
             this._items = new Map();
 
-            this.menu.addSettingsAction(_("Displays"), "gnome-display-panel.desktop");
-
-            // this._itemBinding = new GObject.BindingGroup();
-            // this._itemBinding.bind_full(
-            //     "selected-item-changed",
-            //     this, "subtitle", GObject.BindingFlags.DEFAULT,
-            //     (bind, source) => [true, source],
-            //     null
-            // );
+            this.menu.addSettingsAction(_("Display Settings"), "gnome-display-panel.desktop");
 
             this._updateItems();
         }
@@ -75,15 +67,15 @@ const MonitorsConfigMenuToggle = GObject.registerClass(
                 for (const monitorName in monitorsConfig){
                     const monitorConfigSubMenuMenuItem = new PopupMenu.PopupSubMenuMenuItem(monitorName);
     
+                    let currentConfig = null;
                     monitorsConfig[monitorName][this._monitorConfigParameter].forEach(el => {
                         monitorConfigSubMenuMenuItem.menu.addMenuItem(
                             this._getMonitorConfigElementMenuItem(el)
                         );
 
-                        // if (el.isCurrent) {
-                        //     this._itemBinding.source?.notify("selected-item-changed");
-                        // }
+                        if (el.isCurrent) currentConfig = el;
                     });
+                    monitorConfigSubMenuMenuItem.label.set_text(monitorName + (currentConfig != null ? ` - ${this._getMonitorConfigElementName(currentConfig)}` : ""));
 
                     this._items.set(monitorName, monitorConfigSubMenuMenuItem);
                     this.menu.addMenuItem(monitorConfigSubMenuMenuItem);
@@ -91,12 +83,16 @@ const MonitorsConfigMenuToggle = GObject.registerClass(
             });
         }
 
-        // _getSelectedElementName(monitorConfigElement) {
-
-        // }
+        _getMonitorConfigElementName(monitorConfigElement) {
+            throw new GObject.NotImplementedError();
+        }
 
         _getMonitorConfigElementMenuItem(monitorConfigElement) {
-            throw new GObject.NotImplementedError();
+            return new PopupMenuItemWithSelectedAndPreferredMarks(
+                this._getMonitorConfigElementName(monitorConfigElement),
+                monitorConfigElement.isCurrent,
+                monitorConfigElement.isPreferred
+            );
         }
 
         _parseMonitorsConfig(data) {
@@ -160,7 +156,7 @@ export const ResolutionMenuToggle = GObject.registerClass(
                 {
                     title: _("Resolution"),
                     // subtitle: _("Example Subtitle"),
-                    iconName: "computer-symbolic", // tablet-symbolic
+                    iconName: "computer-symbolic",
                     toggleMode: false,
                     checked: true
                 }
@@ -179,12 +175,8 @@ export const ResolutionMenuToggle = GObject.registerClass(
             // this.menu._settingsActions[extensionObject.uuid] = settingsItem;
         }
 
-        _getMonitorConfigElementMenuItem(monitorConfigElement) {
-            return new PopupMenuItemWithSelectedAndPreferredMarks(
-                `${monitorConfigElement.horizontally}x${monitorConfigElement.vertically}`,
-                monitorConfigElement.isCurrent,
-                monitorConfigElement.isPreferred
-            );
+        _getMonitorConfigElementName(monitorConfigElement) {
+            return `${monitorConfigElement.horizontally}x${monitorConfigElement.vertically}`;
         }
     }
 );
@@ -197,7 +189,7 @@ export const RefreshRateMenuToggle = GObject.registerClass(
                 {
                     title: _("Refresh Rate"),
                     // subtitle: _("Example Subtitle"),
-                    iconName: "tablet-symbolic", // tablet-symbolic
+                    iconName: "tablet-symbolic",
                     toggleMode: false,
                     checked: true
                 }
@@ -207,12 +199,8 @@ export const RefreshRateMenuToggle = GObject.registerClass(
             this.menu.setHeader("computer-symbolic", _("Refresh Rate"));
         }
 
-        _getMonitorConfigElementMenuItem(monitorConfigElement) {
-            return new PopupMenuItemWithSelectedAndPreferredMarks(
-                monitorConfigElement.value,
-                monitorConfigElement.isCurrent,
-                monitorConfigElement.isPreferred
-            );
+        _getMonitorConfigElementName(monitorConfigElement) {
+            return monitorConfigElement.value;
         }
     }
 );
