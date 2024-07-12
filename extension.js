@@ -70,10 +70,12 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
         this._resolutionIndicator.quickSettingsItems.forEach(item => item.destroy());
         this._resolutionIndicator.destroy();
         this._resolutionIndicator = null;
+        this._resolutionMenuToggle = null;
 
         this._refreshRateIndicator.quickSettingsItems.forEach(item => item.destroy());
         this._refreshRateIndicator.destroy();
         this._refreshRateIndicator = null;
+        this._refreshRateMenuToggle = null;
 
         if (this._monitorsConfigChangedSignalId) {
             this._monitorsConfigProxy.disconnectSignal(this._monitorsConfigChangedSignalId);
