@@ -43,44 +43,50 @@ const PopupMenuItemWithSelectedAndPreferredMarks = GObject.registerClass({
     }
 );
 
-const MonitorsConfigMenuToggle = GObject.registerClass(
-    class MonitorsConfigMenuToggle extends QuickSettings.QuickMenuToggle {
-        _init(displayConfigProxy, params) {
+const MonitorsConfigMenuToggle = GObject.registerClass({
+    Signals: {
+        "monitors-config-updated": {},
+    },
+}, class MonitorsConfigMenuToggle extends QuickSettings.QuickMenuToggle {
+        _init(extensionObject, params) {
             super._init(params);
 
-            this._displayConfigProxy = displayConfigProxy;
+            this._extensionObject = extensionObject;
 
             this._items = new Map();
 
             this.menu.addSettingsAction(_("Display Settings"), "gnome-display-panel.desktop");
+        }
 
+        on_monitors_config_updated() {
             this._updateItems();
+        }
+
+        emitMonitorsConfigUpdated() {
+            this.emit("monitors-config-updated");
         }
 
         _updateItems() {
             this._items.forEach((item, key) => item.destroy());
             this._items.clear();
 
-            this._displayConfigProxy.GetCurrentStateRemote((res) => {
-                const monitorsConfig = this._parseMonitorsConfig(res);
+            const monitorsConfig = this._extensionObject.monitorsConfig;
+            for (const monitorName in monitorsConfig){
+                const monitorConfigSubMenuMenuItem = new PopupMenu.PopupSubMenuMenuItem(monitorName);
 
-                for (const monitorName in monitorsConfig){
-                    const monitorConfigSubMenuMenuItem = new PopupMenu.PopupSubMenuMenuItem(monitorName);
-    
-                    let currentConfig = null;
-                    monitorsConfig[monitorName][this._monitorConfigParameter].forEach(el => {
-                        monitorConfigSubMenuMenuItem.menu.addMenuItem(
-                            this._getMonitorConfigElementMenuItem(el)
-                        );
+                let currentConfig = null;
+                monitorsConfig[monitorName][this._monitorConfigParameter].forEach(el => {
+                    monitorConfigSubMenuMenuItem.menu.addMenuItem(
+                        this._getMonitorConfigElementMenuItem(el)
+                    );
 
-                        if (el.isCurrent) currentConfig = el;
-                    });
-                    monitorConfigSubMenuMenuItem.label.set_text(monitorName + (currentConfig != null ? ` - ${this._getMonitorConfigElementName(currentConfig)}` : ""));
+                    if (el.isCurrent) currentConfig = el;
+                });
+                monitorConfigSubMenuMenuItem.label.set_text(monitorName + (currentConfig != null ? ` - ${this._getMonitorConfigElementName(currentConfig)}` : ""));
 
-                    this._items.set(monitorName, monitorConfigSubMenuMenuItem);
-                    this.menu.addMenuItem(monitorConfigSubMenuMenuItem);
-                }
-            });
+                this._items.set(monitorName, monitorConfigSubMenuMenuItem);
+                this.menu.addMenuItem(monitorConfigSubMenuMenuItem);
+            }
         }
 
         _getMonitorConfigElementName(monitorConfigElement) {
@@ -94,57 +100,6 @@ const MonitorsConfigMenuToggle = GObject.registerClass(
                 monitorConfigElement.isPreferred
             );
         }
-
-        _parseMonitorsConfig(data) {
-            if (data.length === 0) return {};
-
-            let monitorsConfig = {};
-            data[1].forEach((monitorDetails) => {
-                let monitorName = monitorDetails[0][0];
-
-                let resolutions = [];
-                let refreshRates = [];
-                monitorDetails[1].forEach((el) => {
-                    let isCurrent = "is-current" in el[6];
-                    let isPreferred = "is-preferred" in el[6];
-
-                    let resolution = {
-                        "horizontally": el[1],
-                        "vertically": el[2],
-                        "isCurrent": isCurrent,
-                        "isPreferred": isPreferred
-                    };
-                    let refreshRate = {
-                        "value": el[3].toFixed(3),
-                        "isCurrent": isCurrent,
-                        "isPreferred": isPreferred
-                    };
-
-                    let savedResolution = resolutions.find(item => item["horizontally"] === resolution["horizontally"] && item["vertically"] === resolution["vertically"]);
-                    if (savedResolution) {
-                        if (isCurrent) savedResolution["isCurrent"] = isCurrent
-                        if (isPreferred) savedResolution["isPreferred"] = isPreferred
-                    } else {
-                        resolutions.push(resolution);
-                    }
-
-                    let savedRefreshRate = refreshRates.find(item => item["value"] === refreshRate["value"]);
-                    if (savedRefreshRate) {
-                        if (isCurrent) savedRefreshRate["isCurrent"] = isCurrent
-                        if (isPreferred) savedRefreshRate["isPreferred"] = isPreferred
-                    } else {
-                        refreshRates.push(refreshRate);
-                    }
-                });
-
-                monitorsConfig[monitorName] = {
-                    "resolutions": resolutions,
-                    "refreshRates": refreshRates
-                };
-            });
-
-            return monitorsConfig;
-        }
     }
 );
 
@@ -152,7 +107,7 @@ export const ResolutionMenuToggle = GObject.registerClass(
     class ResolutionMenuToggle extends MonitorsConfigMenuToggle {
         _init(extensionObject) {
             super._init(
-                extensionObject.displayConfigProxy,
+                extensionObject,
                 {
                     title: _("Resolution"),
                     // subtitle: _("Example Subtitle"),
@@ -185,7 +140,7 @@ export const RefreshRateMenuToggle = GObject.registerClass(
     class RefreshRateMenuToggle extends MonitorsConfigMenuToggle {
         _init(extensionObject) {
             super._init(
-                extensionObject.displayConfigProxy,
+                extensionObject,
                 {
                     title: _("Refresh Rate"),
                     // subtitle: _("Example Subtitle"),
