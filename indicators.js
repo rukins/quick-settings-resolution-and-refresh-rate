@@ -1,4 +1,5 @@
 import GObject from 'gi://GObject';
+import Gio from 'gi://Gio';
 import * as QuickSettings from 'resource:///org/gnome/shell/ui/quickSettings.js';
 
 

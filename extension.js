@@ -27,7 +27,7 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
     }
 
     async enable() {
-        // this._settings = this.getSettings();
+        this._settings = this.getSettings();
 
         const monitorsConfigProxyWrapper = Gio.DBusProxy.makeProxyWrapper(
             FileUtils.loadXML(
@@ -42,7 +42,6 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
         ).then(
             proxy => {
                 this._monitorsConfigProxy = proxy;
-                this._updateMonitorsConfig();
             }
         ).catch(
             e => {
@@ -61,19 +60,38 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
         Main.panel.statusArea.quickSettings.addExternalIndicator(this._resolutionIndicator);
         Main.panel.statusArea.quickSettings.addExternalIndicator(this._refreshRateIndicator);
 
-        this._monitorsConfigChangedSignalId = this._monitorsConfigProxy.connectSignal("MonitorsChanged", () => {
+        this._monitorsConfigChangednalId = this._monitorsConfigProxy.connectSignal("MonitorsChanged", () => {
             this._updateMonitorsConfig();
         });
+
+        this._settings.bind(
+            "add-resolution-toggle-menu",
+            this._resolutionMenuToggle,
+            "visible",
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            "add-refresh-rate-toggle-menu",
+            this._refreshRateMenuToggle,
+            "visible",
+            Gio.SettingsBindFlags.DEFAULT
+        );
+
+        this._updateMonitorsConfig();
     }
 
     disable() {
-        this._resolutionIndicator.quickSettingsItems.forEach(item => item.destroy());
-        this._resolutionIndicator.destroy();
+        if (this._resolutionIndicator) {
+            this._resolutionIndicator.quickSettingsItems.forEach(item => item.destroy());
+            this._resolutionIndicator.destroy();
+        }
         this._resolutionIndicator = null;
         this._resolutionMenuToggle = null;
 
-        this._refreshRateIndicator.quickSettingsItems.forEach(item => item.destroy());
-        this._refreshRateIndicator.destroy();
+        if (this._refreshRateIndicator) {
+            this._refreshRateIndicator.quickSettingsItems.forEach(item => item.destroy());
+            this._refreshRateIndicator.destroy();
+        }
         this._refreshRateIndicator = null;
         this._refreshRateMenuToggle = null;
 
