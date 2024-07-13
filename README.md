@@ -6,7 +6,7 @@ GNOME Shell extension to add Resolution and Refresh Rate toggle menu to Quick Se
 _IN DEVELOPMENT_
 
 ## Translations
-_IN DEVELOPMENT_
+You can help the project with translating strings into your language [on Crowdin](https://crowdin.com/project/quick-settings-resolution-and-refresh-rate)
 
 ## Report Issues
 In the [Issues](https://github.com/rukins/quick-settings-resolution-and-refresh-rate/issues) section you can suggest any improvements and report any bugs you find
