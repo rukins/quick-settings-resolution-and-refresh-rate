@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+
+    <schema id="org.gnome.shell.extensions.quick-settings-resolution-and-refresh-rate" 
+            path="/org/gnome/shell/extensions/quick-settings-resolution-and-refresh-rate/">
+
+        <key type="b" name="add-resolution-toggle-menu">
+            <default>true</default>
+            <summary>Add Resolution toggle menu to Quick Settings</summary>
+        </key>
+
+        <key type="b" name="add-refresh-rate-toggle-menu">
+            <default>true</default>
+            <summary>Add Refresh Rate toggle menu to Quick Settings</summary>
+        </key>
+
+    </schema>
+
+</schemalist>
