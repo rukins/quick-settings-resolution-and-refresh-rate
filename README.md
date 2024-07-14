@@ -1,9 +1,13 @@
 # Resolution and Refresh Rate in GNOME Quick Settings
 
+<img src="./example.png" alt="Resolution and Refresh Rate in Quick Settings" width="250" align="right" style="border-radius: 5%" />
+
 GNOME Shell extension to add Resolution and Refresh Rate toggle menu to Quick Settings.
 
+[<img src="https://raw.githubusercontent.com/andyholmes/gnome-shell-extensions-badge/master/get-it-on-ego.svg?sanitize=true" height="100">](https://extensions.gnome.org/extension/7183/resolution-and-refresh-rate-in-quick-settings/)
+
 ## Install
-_IN DEVELOPMENT_
+The extension is available on [Resolution and Refresh Rate in Quick Settings](https://extensions.gnome.org/extension/7183/resolution-and-refresh-rate-in-quick-settings/) page
 
 ## Translations
 You can help the project with translating strings into your language [on Crowdin](https://crowdin.com/project/quick-settings-resolution-and-refresh-rate)
