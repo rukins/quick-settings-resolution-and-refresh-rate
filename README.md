@@ -1,6 +1,6 @@
 # Resolution and Refresh Rate in GNOME Quick Settings
 
-<img src="./example.png" alt="Resolution and Refresh Rate in Quick Settings" width="250" align="right" style="border-radius: 5%" />
+<img src="./example.png" alt="Resolution and Refresh Rate in Quick Settings" width="250" align="right" style="border-radius: 5%; position: relative; z-index: 1;" />
 
 GNOME Shell extension to add Resolution and Refresh Rate toggle menu to Quick Settings.
 
