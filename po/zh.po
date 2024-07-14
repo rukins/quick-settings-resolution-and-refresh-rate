@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: quick-settings-resolution-and-refresh-rate\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-13 23:41+0500\n"
-"PO-Revision-Date: 2024-07-13 19:37\n"
+"POT-Creation-Date: 2024-07-15 01:34+0500\n"
+"PO-Revision-Date: 2024-07-14 20:36\n"
 "Last-Translator: \n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
@@ -17,15 +17,15 @@ msgstr ""
 "X-Crowdin-File: /master/po/quick-settings-resolution-and-refresh-rate@rukins.github.io.pot\n"
 "X-Crowdin-File-ID: 14\n"
 
-#: menuToggles.js:58
+#: menuToggles.js:60
 msgid "Display Settings"
 msgstr ""
 
-#: menuToggles.js:112 menuToggles.js:121
+#: menuToggles.js:123 menuToggles.js:132
 msgid "Resolution"
 msgstr ""
 
-#: menuToggles.js:145 menuToggles.js:154
+#: menuToggles.js:156 menuToggles.js:165
 msgid "Refresh Rate"
 msgstr ""
 
