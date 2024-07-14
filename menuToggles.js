@@ -4,6 +4,8 @@ import Clutter from 'gi://Clutter';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as QuickSettings from 'resource:///org/gnome/shell/ui/quickSettings.js';
 
+import { MonitorConfigParameters } from "./extension.js";
+
 
 const PopupMenuItemWithSelectedAndPreferredMarks = GObject.registerClass({
     Properties: {
@@ -77,7 +79,7 @@ const MonitorsConfigMenuToggle = GObject.registerClass({
                 let currentConfig = null;
                 monitorsConfig[monitorName][this._monitorConfigParameter].forEach(el => {
                     monitorConfigSubMenuMenuItem.menu.addMenuItem(
-                        this._getMonitorConfigElementMenuItem(el)
+                        this._getMonitorConfigElementMenuItem(monitorName, el)
                     );
 
                     if (el.isCurrent) currentConfig = el;
@@ -93,12 +95,21 @@ const MonitorsConfigMenuToggle = GObject.registerClass({
             throw new GObject.NotImplementedError();
         }
 
-        _getMonitorConfigElementMenuItem(monitorConfigElement) {
-            return new PopupMenuItemWithSelectedAndPreferredMarks(
+        _getMonitorConfigElementMenuItem(monitorName, monitorConfigElement) {
+            const menuItem = new PopupMenuItemWithSelectedAndPreferredMarks(
                 this._getMonitorConfigElementName(monitorConfigElement),
                 monitorConfigElement.isCurrent,
                 monitorConfigElement.isPreferred
             );
+            menuItem.connect("activate", (o, event) => {
+                this._getMonitorConfigElementActivateCallback(monitorName, monitorConfigElement)();
+            });
+
+            return menuItem;
+        }
+
+        _getMonitorConfigElementActivateCallback(monitorName, monitorConfigElement) {
+            return this._extensionObject.getMonitorConfigElementActivateCallback(monitorName, monitorConfigElement, this._monitorConfigParameter);
         }
     }
 );
@@ -116,7 +127,7 @@ export const ResolutionMenuToggle = GObject.registerClass(
                     checked: true
                 }
             )
-            this._monitorConfigParameter = "resolutions";
+            this._monitorConfigParameter = MonitorConfigParameters.RESOLUTION;
 
             this.menu.setHeader("computer-symbolic", _("Resolution"));
 
@@ -149,7 +160,7 @@ export const RefreshRateMenuToggle = GObject.registerClass(
                     checked: true
                 }
             )
-            this._monitorConfigParameter = "refreshRates";
+            this._monitorConfigParameter = MonitorConfigParameters.REFRESH_RATE;
 
             this.menu.setHeader("computer-symbolic", _("Refresh Rate"));
         }
