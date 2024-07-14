@@ -5,7 +5,7 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 
-import * as FileUtils from "./fileUtils.js"
+import * as FileUtils from "./fileUtils.js";
 import { ResolutionIndicator, RefreshRateIndicator } from "./indicators.js";
 import { ResolutionMenuToggle, RefreshRateMenuToggle } from "./menuToggles.js";
 
@@ -13,11 +13,17 @@ import { ResolutionMenuToggle, RefreshRateMenuToggle } from "./menuToggles.js";
 const DISPLAY_CONFIG_OBJECT_PATH = "/org/gnome/Mutter/DisplayConfig";
 const DISPLAY_CONFIG_INTERFACE = "org.gnome.Mutter.DisplayConfig";
 
+export const MonitorConfigParameters = Object.freeze({
+    RESOLUTION: "resolutions",
+    REFRESH_RATE: "refreshRates"
+});
+
 export default class QuickSettingsResolutionAndRefreshRateExtension extends Extension {
 
     _settings = null;
 
     _monitorsConfigCache = {};
+    _monitorsConfigSerialCache = null;
     _monitorsConfigProxy = null;
 
     _monitorsConfigChangedSignalId = null;
@@ -103,6 +109,7 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
         this._settings = null;
 
         this._monitorsConfigCache = null;
+        this._monitorsConfigSerialCache = null;
         this._monitorsConfigProxy = null;
     }
 
@@ -110,9 +117,60 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
         return this._monitorsConfigCache;
     }
 
+    get monitorsConfigSerial() {
+        return this._monitorsConfigSerialCache;
+    }
+
+    getMonitorConfigElementActivateCallback(monitorName, monitorConfigElement, monitorConfigParameter) {
+        let askToUpdate = true;
+
+        const callback = () => {
+            this._monitorsConfigProxy.ApplyMonitorsConfigRemote(
+                this.monitorsConfigSerial,
+                (askToUpdate ? 2 : 1),
+                [
+                    [
+                        0, 0, 1.0, 0, true,
+                        [
+                            [
+                                monitorName,
+                                this._generateMonitorConfigStringFor(monitorName, monitorConfigElement, monitorConfigParameter),
+                                {}
+                            ]
+                        ]
+                    ]
+                ],
+                {},
+                () => {},
+            );
+        };
+
+        return callback;
+    }
+
+    // generates string in format - "{resolution.horizontally}x{resolution.vertically}@{refreshRate.value}"
+    _generateMonitorConfigStringFor(monitorName, monitorConfigElement, monitorConfigParameter) {
+        if (monitorConfigParameter === MonitorConfigParameters.RESOLUTION) {
+            return `${monitorConfigElement.horizontally}x${monitorConfigElement.vertically}@${this._getCurrentMonitorConfigElementByMonitorName(monitorName, MonitorConfigParameters.REFRESH_RATE).value}`;
+        } else if (monitorConfigParameter === MonitorConfigParameters.REFRESH_RATE) {
+            const currentResolutionConfig = this._getCurrentMonitorConfigElementByMonitorName(monitorName, MonitorConfigParameters.RESOLUTION);
+
+            return `${currentResolutionConfig.horizontally}x${currentResolutionConfig.vertically}@${monitorConfigElement.value}`;
+        }
+
+        return null;
+    }
+
+    _getCurrentMonitorConfigElementByMonitorName(monitorName, monitorConfigParameter) {
+        return this.monitorsConfig[monitorName][monitorConfigParameter].find(item => item.isCurrent === true);
+    }
+
     _updateMonitorsConfig() {
+        // using Remote instead of Sync because the interface freezes with Sync
         this._monitorsConfigProxy.GetCurrentStateRemote((res) => {
-            this._monitorsConfigCache = this._parseMonitorsConfig(res);
+            const {monitorsConfig, serial} = this._parseMonitorsConfig(res);
+            this._monitorsConfigCache = monitorsConfig;
+            this._monitorsConfigSerialCache = serial;
 
             this._resolutionMenuToggle.emitMonitorsConfigUpdated();
             this._refreshRateMenuToggle.emitMonitorsConfigUpdated();
@@ -122,7 +180,9 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
     _parseMonitorsConfig(data) {
         if (data.length === 0) return {};
 
-        let monitorsConfig = {};
+        const serial = data[0];
+
+        const monitorsConfig = {};
         data[1].forEach((monitorDetails) => {
             let monitorName = monitorDetails[0][0];
 
@@ -167,6 +227,9 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
             };
         });
 
-        return monitorsConfig;
+        return {
+            "monitorsConfig": monitorsConfig,
+            "serial": serial
+        };
     }
 }
