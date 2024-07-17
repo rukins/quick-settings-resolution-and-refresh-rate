@@ -35,13 +35,13 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
     async enable() {
         this._settings = this.getSettings();
 
-        const monitorsConfigProxyWrapper = Gio.DBusProxy.makeProxyWrapper(
+        const MonitorsConfigProxyWrapper = Gio.DBusProxy.makeProxyWrapper(
             FileUtils.loadXML(
                 DISPLAY_CONFIG_INTERFACE, GLib.build_filenamev([this.metadata.path])
             )
         );
 
-        await monitorsConfigProxyWrapper.newAsync(
+        await MonitorsConfigProxyWrapper.newAsync(
             Gio.DBus.session,
             DISPLAY_CONFIG_INTERFACE,
             DISPLAY_CONFIG_OBJECT_PATH
@@ -66,7 +66,7 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
         Main.panel.statusArea.quickSettings.addExternalIndicator(this._resolutionIndicator);
         Main.panel.statusArea.quickSettings.addExternalIndicator(this._refreshRateIndicator);
 
-        this._monitorsConfigChangednalId = this._monitorsConfigProxy.connectSignal("MonitorsChanged", () => {
+        this._monitorsConfigChangedSignalId = this._monitorsConfigProxy.connectSignal("MonitorsChanged", () => {
             this._updateMonitorsConfig();
         });
 
@@ -87,17 +87,13 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
     }
 
     disable() {
-        if (this._resolutionIndicator) {
-            this._resolutionIndicator.quickSettingsItems.forEach(item => item.destroy());
-            this._resolutionIndicator.destroy();
-        }
+        this._resolutionIndicator?.quickSettingsItems.forEach(item => item.destroy());
+        this._resolutionIndicator?.destroy();
         this._resolutionIndicator = null;
         this._resolutionMenuToggle = null;
 
-        if (this._refreshRateIndicator) {
-            this._refreshRateIndicator.quickSettingsItems.forEach(item => item.destroy());
-            this._refreshRateIndicator.destroy();
-        }
+        this._refreshRateIndicator?.quickSettingsItems.forEach(item => item.destroy());
+        this._refreshRateIndicator?.destroy();
         this._refreshRateIndicator = null;
         this._refreshRateMenuToggle = null;
 
@@ -111,6 +107,8 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
         this._monitorsConfigCache = null;
         this._monitorsConfigSerialCache = null;
         this._monitorsConfigProxy = null;
+
+        this.MonitorsConfigProxyWrapper = null;
     }
 
     get monitorsConfig() {
