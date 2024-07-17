@@ -14,7 +14,7 @@ export function loadXML(interfaceName, folderAbsolutePath) {
 
         return new TextDecoder().decode(bytes);
     } catch (e) {
-        log(`Failed to load interface ${interfaceName}`);
+        console.log(`Failed to load interface ${interfaceName}`);
     }
 
     return null;
