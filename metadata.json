@@ -2,7 +2,7 @@
     "uuid": "quick-settings-resolution-and-refresh-rate@rukins.github.io",
     "name": "Resolution and Refresh Rate in Quick Settings",
     "description": "GNOME Shell extension to add Resolution and Refresh Rate toggle menu to Quick Settings",
-    "shell-version": ["45", "46"],
+    "shell-version": ["45", "46", "47"],
     "url": "https://github.com/rukins/quick-settings-resolution-and-refresh-rate",
     "gettext-domain": "quick-settings-resolution-and-refresh-rate@rukins.github.io",
     "settings-schema": "org.gnome.shell.extensions.quick-settings-resolution-and-refresh-rate",
