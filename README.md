@@ -12,6 +12,11 @@ The extension is available on [Resolution and Refresh Rate in Quick Settings](ht
 ## Translations
 You can help the project with translating strings into your language [on Crowdin](https://crowdin.com/project/quick-settings-resolution-and-refresh-rate)
 
+## Useful info
+
+### How to add custom refresh rate for your display on Wayland using GRUB
+Follow [this guide](https://davejansen.com/add-custom-resolution-and-refresh-rate-when-using-wayland-gnome/)
+
 ## Report Issues
 In the [Issues](https://github.com/rukins/quick-settings-resolution-and-refresh-rate/issues) section you can suggest any improvements and report any bugs you find
 
