@@ -119,8 +119,11 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
         return this._monitorsConfigSerialCache;
     }
 
+    // REFACTORME: here, monitorConfigElement parameter can be omitted, and can be obtained from 'this.monitorsConfig'
     getMonitorConfigElementActivateCallback(monitorName, monitorConfigElement, monitorConfigParameter) {
         let askToUpdate = true;
+
+        let currentSettings = this.monitorsConfig[monitorName]["currentSettings"]
 
         const callback = () => {
             this._monitorsConfigProxy.ApplyMonitorsConfigRemote(
@@ -128,7 +131,7 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
                 (askToUpdate ? 2 : 1),
                 [
                     [
-                        0, 0, 1.0, 0, true,
+                        currentSettings[0], currentSettings[1], currentSettings[2], currentSettings[3], currentSettings[4],
                         [
                             [
                                 monitorName,
@@ -181,7 +184,10 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
         const serial = data[0];
 
         const monitorsConfig = {};
-        data[1].forEach((monitorDetails) => {
+        for (let i = 0; i < data[1].length; i++) {
+            let monitorDetails = data[1][i]
+            let currentMonitorSettings = data[2][i]
+
             let monitorName = monitorDetails[0][0];
 
             let resolutions = [];
@@ -221,9 +227,10 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
 
             monitorsConfig[monitorName] = {
                 "resolutions": resolutions,
-                "refreshRates": refreshRates
+                "refreshRates": refreshRates,
+                "currentSettings": currentMonitorSettings
             };
-        });
+        }
 
         return {
             "monitorsConfig": monitorsConfig,
