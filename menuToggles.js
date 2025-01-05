@@ -77,7 +77,7 @@ const MonitorsConfigMenuToggle = GObject.registerClass({
                 const monitorConfigSubMenuMenuItem = new PopupMenu.PopupSubMenuMenuItem(monitorName);
 
                 let currentConfig = null;
-                monitorsConfig[monitorName][this._monitorConfigParameter].forEach(el => {
+                this._getMonitorConfigElements(monitorName).forEach(el => {
                     monitorConfigSubMenuMenuItem.menu.addMenuItem(
                         this._getMonitorConfigElementMenuItem(monitorName, el)
                     );
@@ -89,6 +89,10 @@ const MonitorsConfigMenuToggle = GObject.registerClass({
                 this._items.set(monitorName, monitorConfigSubMenuMenuItem);
                 this.menu.addMenuItem(monitorConfigSubMenuMenuItem);
             }
+        }
+
+        _getMonitorConfigElements(monitorName) {
+            throw new GObject.NotImplementedError();
         }
 
         _getMonitorConfigElementName(monitorConfigElement) {
@@ -141,6 +145,10 @@ export const ResolutionMenuToggle = GObject.registerClass(
             // this.menu._settingsActions[extensionObject.uuid] = settingsItem;
         }
 
+        _getMonitorConfigElements(monitorName) {
+            return this._extensionObject.monitorsConfig[monitorName][MonitorConfigParameters.RESOLUTION]
+        }
+
         _getMonitorConfigElementName(monitorConfigElement) {
             return `${monitorConfigElement.horizontally}x${monitorConfigElement.vertically}`;
         }
@@ -163,6 +171,11 @@ export const RefreshRateMenuToggle = GObject.registerClass(
             this._monitorConfigParameter = MonitorConfigParameters.REFRESH_RATE;
 
             this.menu.setHeader("computer-symbolic", _("Refresh Rate"));
+        }
+
+        _getMonitorConfigElements(monitorName) {
+            let currentResolution = this._extensionObject.monitorsConfig[monitorName][MonitorConfigParameters.RESOLUTION].find(el => el.isCurrent);
+            return currentResolution[MonitorConfigParameters.REFRESH_RATE]
         }
 
         _getMonitorConfigElementName(monitorConfigElement) {

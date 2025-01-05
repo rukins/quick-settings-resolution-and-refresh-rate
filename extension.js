@@ -119,7 +119,6 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
         return this._monitorsConfigSerialCache;
     }
 
-    // REFACTORME: here, monitorConfigElement parameter can be omitted, and can be obtained from 'this.monitorsConfig'
     getMonitorConfigElementActivateCallback(monitorName, monitorConfigElement, monitorConfigParameter) {
         let askToUpdate = true;
 
@@ -191,7 +190,6 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
             let monitorName = monitorDetails[0][0];
 
             let resolutions = [];
-            let refreshRates = [];
             monitorDetails[1].forEach((el) => {
                 let isCurrent = "is-current" in el[6];
                 let isPreferred = "is-preferred" in el[6];
@@ -200,7 +198,8 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
                     "horizontally": el[1],
                     "vertically": el[2],
                     "isCurrent": isCurrent,
-                    "isPreferred": isPreferred
+                    "isPreferred": isPreferred,
+                    "refreshRates": []
                 };
                 let refreshRate = {
                     "value": el[3].toFixed(3),
@@ -212,22 +211,23 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
                 if (savedResolution) {
                     if (isCurrent) savedResolution["isCurrent"] = isCurrent
                     if (isPreferred) savedResolution["isPreferred"] = isPreferred
+
+                    resolution = savedResolution
                 } else {
-                    resolutions.push(resolution);
+                    resolutions.push(resolution)
                 }
 
-                let savedRefreshRate = refreshRates.find(item => item["value"] === refreshRate["value"]);
+                let savedRefreshRate = resolution["refreshRates"].find(item => item["value"] === refreshRate["value"]);
                 if (savedRefreshRate) {
                     if (isCurrent) savedRefreshRate["isCurrent"] = isCurrent
                     if (isPreferred) savedRefreshRate["isPreferred"] = isPreferred
                 } else {
-                    refreshRates.push(refreshRate);
+                    resolution["refreshRates"].push(refreshRate);
                 }
             });
 
             monitorsConfig[monitorName] = {
                 "resolutions": resolutions,
-                "refreshRates": refreshRates,
                 "currentSettings": currentMonitorSettings
             };
         }
