@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: quick-settings-resolution-and-refresh-rate\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-07-15 01:34+0500\n"
-"PO-Revision-Date: 2025-07-25 07:52\n"
+"PO-Revision-Date: 2025-07-25 09:47\n"
 "Last-Translator: \n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
@@ -19,21 +19,21 @@ msgstr ""
 
 #: menuToggles.js:60
 msgid "Display Settings"
-msgstr ""
+msgstr "顯示器設定值"
 
 #: menuToggles.js:123 menuToggles.js:132
 msgid "Resolution"
-msgstr ""
+msgstr "解析度"
 
 #: menuToggles.js:156 menuToggles.js:165
 msgid "Refresh Rate"
-msgstr ""
+msgstr "更新率"
 
 #: prefs.js:25
 msgid "Add Resolution toggle menu to Quick Settings"
-msgstr ""
+msgstr "在快速設定中增加解析度切換選單"
 
 #: prefs.js:31
 msgid "Add Refresh Rate toggle menu to Quick Settings"
-msgstr ""
+msgstr "在快速設定中增加更新率切換選單"
 
