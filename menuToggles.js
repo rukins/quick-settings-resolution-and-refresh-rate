@@ -57,6 +57,10 @@ const MonitorsConfigMenuToggle = GObject.registerClass({
 
             this._items = new Map();
 
+            this._itemsSection = new PopupMenu.PopupMenuSection();
+            this.menu.addMenuItem(this._itemsSection);
+
+            this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
             this.menu.addSettingsAction(_("Display Settings"), "gnome-display-panel.desktop");
         }
 
@@ -87,7 +91,7 @@ const MonitorsConfigMenuToggle = GObject.registerClass({
                 monitorConfigSubMenuMenuItem.label.set_text(monitorName + (currentConfig != null ? ` - ${this._getMonitorConfigElementName(currentConfig)}` : ""));
 
                 this._items.set(monitorName, monitorConfigSubMenuMenuItem);
-                this.menu.addMenuItem(monitorConfigSubMenuMenuItem);
+                this._itemsSection.addMenuItem(monitorConfigSubMenuMenuItem);
             }
         }
 
