@@ -184,13 +184,13 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
 
         const monitorsConfig = {};
         for (let i = 0; i < data[1].length; i++) {
-            let monitorDetails = data[1][i]
-            let currentMonitorSettings = data[2][i]
+            let details = data[1][i]
+            let currentSettings = data[2][i]
 
-            let monitorName = monitorDetails[0][0];
+            let name = details[0][0];
 
             let resolutions = [];
-            monitorDetails[1].forEach((el) => {
+            details[1].forEach((el) => {
                 let isCurrent = "is-current" in el[6];
                 let isPreferred = "is-preferred" in el[6];
 
@@ -226,9 +226,9 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
                 }
             });
 
-            monitorsConfig[monitorName] = {
+            monitorsConfig[name] = {
                 "resolutions": resolutions,
-                "currentSettings": currentMonitorSettings
+                "currentSettings": currentSettings
             };
         }
 
