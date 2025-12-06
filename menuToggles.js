@@ -4,7 +4,7 @@ import Clutter from 'gi://Clutter';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as QuickSettings from 'resource:///org/gnome/shell/ui/quickSettings.js';
 
-import { MonitorConfigParameters } from "./extension.js";
+import { MonitorConfigParameters, MonitorFeatures } from "./extension.js";
 
 
 const PopupMenuItemWithSelectedAndPreferredMarks = GObject.registerClass({
@@ -80,6 +80,8 @@ const MonitorsConfigMenuToggle = GObject.registerClass({
             for (const monitorName in monitorsConfig){
                 const monitorConfigSubMenuMenuItem = new PopupMenu.PopupSubMenuMenuItem(monitorName);
 
+                const displayName = this._getMonitorDisplayName(monitorName);
+
                 let currentConfig = null;
                 this._getMonitorConfigElements(monitorName).forEach(el => {
                     monitorConfigSubMenuMenuItem.menu.addMenuItem(
@@ -88,7 +90,7 @@ const MonitorsConfigMenuToggle = GObject.registerClass({
 
                     if (el.isCurrent) currentConfig = el;
                 });
-                monitorConfigSubMenuMenuItem.label.set_text(monitorName + (currentConfig != null ? ` - ${this._getMonitorConfigElementName(currentConfig)}` : ""));
+                monitorConfigSubMenuMenuItem.label.set_text(displayName + (currentConfig != null ? ` - ${this._getMonitorConfigElementName(currentConfig)}` : ""));
 
                 this._items.set(monitorName, monitorConfigSubMenuMenuItem);
                 this._itemsSection.addMenuItem(monitorConfigSubMenuMenuItem);
@@ -101,6 +103,11 @@ const MonitorsConfigMenuToggle = GObject.registerClass({
 
         _getMonitorConfigElementName(monitorConfigElement) {
             throw new GObject.NotImplementedError();
+        }
+
+        _getMonitorDisplayName(monitorName) {
+            const displayName = this._extensionObject.monitorsConfig[monitorName][MonitorConfigParameters.FEATURES][MonitorFeatures.DISPLAY_NAME];
+            return displayName ? displayName : monitorName;
         }
 
         _getMonitorConfigElementMenuItem(monitorName, monitorConfigElement) {

@@ -15,8 +15,15 @@ const DISPLAY_CONFIG_INTERFACE = "org.gnome.Mutter.DisplayConfig";
 
 export const MonitorConfigParameters = Object.freeze({
     RESOLUTION: "resolutions",
-    REFRESH_RATE: "refreshRates"
+    REFRESH_RATE: "refreshRates",
+    FEATURES: "features",
+    SETTINGS: "settings",
 });
+
+export const MonitorFeatures = Object.freeze({
+    DISPLAY_NAME: "display-name",
+});
+
 
 export default class QuickSettingsResolutionAndRefreshRateExtension extends Extension {
 
@@ -122,7 +129,7 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
     getMonitorConfigElementActivateCallback(monitorName, monitorConfigElement, monitorConfigParameter) {
         let askToUpdate = true;
 
-        let currentSettings = this.monitorsConfig[monitorName]["currentSettings"]
+        let settings = this.monitorsConfig[monitorName][MonitorConfigParameters.SETTINGS];
 
         const callback = () => {
             this._monitorsConfigProxy.ApplyMonitorsConfigRemote(
@@ -130,7 +137,7 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
                 (askToUpdate ? 2 : 1),
                 [
                     [
-                        currentSettings[0], currentSettings[1], currentSettings[2], currentSettings[3], currentSettings[4],
+                        settings[0], settings[1], settings[2], settings[3], settings[4],
                         [
                             [
                                 monitorName,
@@ -185,7 +192,7 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
         const monitorsConfig = {};
         for (let i = 0; i < data[1].length; i++) {
             let details = data[1][i]
-            let currentSettings = data[2][i]
+            let settings = data[2][i]
 
             let name = details[0][0];
 
@@ -226,9 +233,12 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
                 }
             });
 
+            let features = this._extractMonitorsFeatures(details[2]);
+
             monitorsConfig[name] = {
                 "resolutions": resolutions,
-                "currentSettings": currentSettings
+                "features": features,
+                "settings": settings
             };
         }
 
@@ -236,5 +246,13 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
             "monitorsConfig": monitorsConfig,
             "serial": serial
         };
+    }
+
+    _extractMonitorsFeatures(features) {
+        const extractedFeatures = {};
+
+        extractedFeatures[MonitorFeatures.DISPLAY_NAME] = features[MonitorFeatures.DISPLAY_NAME]?.get_string()[0] ?? null;
+
+        return extractedFeatures;
     }
 }
