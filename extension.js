@@ -22,6 +22,9 @@ export const MonitorConfigParameters = Object.freeze({
 
 export const MonitorFeatures = Object.freeze({
     DISPLAY_NAME: "display-name",
+    IS_UNDERSCANNING: "is-underscanning",
+    UNDERSCANNING: "underscanning",
+    COLOR_MODE: "color-mode",
 });
 
 
@@ -142,7 +145,11 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
                             [
                                 monitorName,
                                 this._generateMonitorConfigStringFor(monitorName, monitorConfigElement, monitorConfigParameter),
-                                {}
+                                {
+                                    // I don't know why the parameter is called differently here :(
+                                    [MonitorFeatures.UNDERSCANNING]: GLib.Variant.new_boolean(this.monitorsConfig[monitorName][MonitorConfigParameters.FEATURES][MonitorFeatures.IS_UNDERSCANNING]),
+                                    [MonitorFeatures.COLOR_MODE]: GLib.Variant.new_uint32(this.monitorsConfig[monitorName][MonitorConfigParameters.FEATURES][MonitorFeatures.COLOR_MODE]),
+                                }
                             ]
                         ]
                     ]
@@ -251,7 +258,9 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
     _extractMonitorsFeatures(features) {
         const extractedFeatures = {};
 
-        extractedFeatures[MonitorFeatures.DISPLAY_NAME] = features[MonitorFeatures.DISPLAY_NAME]?.get_string()[0] ?? null;
+        extractedFeatures[MonitorFeatures.DISPLAY_NAME] = features[MonitorFeatures.DISPLAY_NAME]?.unpack() ?? null;
+        extractedFeatures[MonitorFeatures.IS_UNDERSCANNING] = features[MonitorFeatures.IS_UNDERSCANNING]?.unpack() ?? null;
+        extractedFeatures[MonitorFeatures.COLOR_MODE] = features[MonitorFeatures.COLOR_MODE]?.unpack() ?? null;
 
         return extractedFeatures;
     }
