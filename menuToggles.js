@@ -263,7 +263,7 @@ const ColorModeFeaturePopupMenuItem = GObject.registerClass(
         }
 
         allowed() {
-            return this._extensionObject.monitorsConfig[this._monitorName][MonitorConfigParameters.FEATURES][MonitorFeatures.SUPPORTED_COLOR_MODES] >= 2;
+            return this._extensionObject.monitorsConfig[this._monitorName][MonitorConfigParameters.FEATURES][MonitorFeatures.SUPPORTED_COLOR_MODES].length >= 2;
         }
 
         activated() {
