@@ -181,7 +181,7 @@ export const RefreshRateMenuToggle = GObject.registerClass(
             )
             this._monitorConfigParameter = MonitorConfigParameters.REFRESH_RATE;
 
-            this.menu.setHeader("computer-symbolic", _("Refresh Rate"));
+            this.menu.setHeader("tablet-symbolic", _("Refresh Rate"));
         }
 
         _getMonitorConfigElements(monitorName) {
