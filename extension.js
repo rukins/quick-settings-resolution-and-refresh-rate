@@ -231,8 +231,8 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
 
             let resolutions = [];
             details[1].forEach((el) => {
-                let isCurrent = "is-current" in el[6];
-                let isPreferred = "is-preferred" in el[6];
+                let isCurrent = el[6]["is-current"]?.unpack() == true ?? false;
+                let isPreferred = el[6]["is-preferred"]?.unpack() == true ?? false;
 
                 let resolution = {
                     "horizontally": el[1],
