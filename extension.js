@@ -268,8 +268,6 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
 
             let features = this._extractMonitorsFeatures(details[2]);
 
-            log(features);
-
             monitorsConfig[name] = {
                 "resolutions": resolutions,
                 "features": features,
