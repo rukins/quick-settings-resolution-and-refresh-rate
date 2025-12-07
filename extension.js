@@ -6,8 +6,8 @@ import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import * as FileUtils from "./fileUtils.js";
-import { ResolutionIndicator, RefreshRateIndicator } from "./indicators.js";
-import { ResolutionMenuToggle, RefreshRateMenuToggle } from "./menuToggles.js";
+import { ResolutionIndicator, RefreshRateIndicator, FeaturesIndicator } from "./indicators.js";
+import { ResolutionMenuToggle, RefreshRateMenuToggle, FeaturesMenuToggle } from "./menuToggles.js";
 
 
 const DISPLAY_CONFIG_OBJECT_PATH = "/org/gnome/Mutter/DisplayConfig";
@@ -25,6 +25,7 @@ export const MonitorFeatures = Object.freeze({
     IS_UNDERSCANNING: "is-underscanning",
     UNDERSCANNING: "underscanning",
     COLOR_MODE: "color-mode",
+    SUPPORTED_COLOR_MODES: "supported-color-modes",
 });
 
 
@@ -73,8 +74,13 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
         this._refreshRateIndicator = new RefreshRateIndicator(this);
         this._refreshRateIndicator.quickSettingsItems.push(this._refreshRateMenuToggle);
 
+        this._featuresMenuToggle = new FeaturesMenuToggle(this);
+        this._featuresIndicator = new FeaturesIndicator(this);
+        this._featuresIndicator.quickSettingsItems.push(this._featuresMenuToggle);
+
         Main.panel.statusArea.quickSettings.addExternalIndicator(this._resolutionIndicator);
         Main.panel.statusArea.quickSettings.addExternalIndicator(this._refreshRateIndicator);
+        Main.panel.statusArea.quickSettings.addExternalIndicator(this._featuresIndicator);
 
         this._monitorsConfigChangedSignalId = this._monitorsConfigProxy.connectSignal("MonitorsChanged", () => {
             this._updateMonitorsConfig();
@@ -92,6 +98,12 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
             "visible",
             Gio.SettingsBindFlags.DEFAULT
         );
+        this._settings.bind(
+            "add-features-toggle-menu",
+            this._featuresMenuToggle,
+            "visible",
+            Gio.SettingsBindFlags.DEFAULT
+        );
 
         this._updateMonitorsConfig();
     }
@@ -106,6 +118,11 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
         this._refreshRateIndicator?.destroy();
         this._refreshRateIndicator = null;
         this._refreshRateMenuToggle = null;
+
+        this._featuresIndicator?.quickSettingsItems.forEach(item => item.destroy());
+        this._featuresIndicator?.destroy();
+        this._featuresIndicator = null;
+        this._featuresMenuToggle = null;
 
         if (this._monitorsConfigChangedSignalId) {
             this._monitorsConfigProxy.disconnectSignal(this._monitorsConfigChangedSignalId);
@@ -167,16 +184,24 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
         if (monitorConfigParameter === MonitorConfigParameters.RESOLUTION) {
             return `${monitorConfigElement.horizontally}x${monitorConfigElement.vertically}@${monitorConfigElement[MonitorConfigParameters.REFRESH_RATE][0].value}`;
         } else if (monitorConfigParameter === MonitorConfigParameters.REFRESH_RATE) {
-            const currentResolutionConfig = this._getCurrentMonitorConfigElementByMonitorName(monitorName, MonitorConfigParameters.RESOLUTION);
+            const currentResolutionConfig = this._getCurrentResolutionConfigByMonitorName(monitorName);
 
             return `${currentResolutionConfig.horizontally}x${currentResolutionConfig.vertically}@${monitorConfigElement.value}`;
         }
 
-        return null;
+        // return currents by default, for cases where we change features
+        const [currentResolutionConfig, currentRefreshRateConfig] = this._getCurrentResolutionAndRefreshRateConfigByMonitorName(monitorName);
+        return `${currentResolutionConfig.horizontally}x${currentResolutionConfig.vertically}@${currentRefreshRateConfig.value}`;
     }
 
-    _getCurrentMonitorConfigElementByMonitorName(monitorName, monitorConfigParameter) {
-        return this.monitorsConfig[monitorName][monitorConfigParameter].find(item => item.isCurrent === true);
+    _getCurrentResolutionAndRefreshRateConfigByMonitorName(monitorName) {
+        const currentResolutionConfig = this._getCurrentResolutionConfigByMonitorName(monitorName);
+        const currentRefreshRateConfig = currentResolutionConfig[MonitorConfigParameters.REFRESH_RATE].find(item => item.isCurrent === true);
+        return [currentResolutionConfig, currentRefreshRateConfig];
+    }
+
+    _getCurrentResolutionConfigByMonitorName(monitorName) {
+        return this.monitorsConfig[monitorName][MonitorConfigParameters.RESOLUTION].find(item => item.isCurrent === true);
     }
 
     _updateMonitorsConfig() {
@@ -188,6 +213,7 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
 
             this._resolutionMenuToggle.emitMonitorsConfigUpdated();
             this._refreshRateMenuToggle.emitMonitorsConfigUpdated();
+            this._featuresMenuToggle.emitMonitorsConfigUpdated();
         });
     }
 
@@ -242,6 +268,8 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
 
             let features = this._extractMonitorsFeatures(details[2]);
 
+            log(features);
+
             monitorsConfig[name] = {
                 "resolutions": resolutions,
                 "features": features,
@@ -261,6 +289,7 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
         extractedFeatures[MonitorFeatures.DISPLAY_NAME] = features[MonitorFeatures.DISPLAY_NAME]?.unpack() ?? null;
         extractedFeatures[MonitorFeatures.IS_UNDERSCANNING] = features[MonitorFeatures.IS_UNDERSCANNING]?.unpack() ?? null;
         extractedFeatures[MonitorFeatures.COLOR_MODE] = features[MonitorFeatures.COLOR_MODE]?.unpack() ?? null;
+        extractedFeatures[MonitorFeatures.SUPPORTED_COLOR_MODES] = features[MonitorFeatures.SUPPORTED_COLOR_MODES]?.deep_unpack() ?? null;
 
         return extractedFeatures;
     }

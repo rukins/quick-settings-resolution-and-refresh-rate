@@ -33,8 +33,15 @@ export default class QuickSettingsResolutionAndRefreshRatePreferences extends Ex
         });
         group.add(addRefreshRateToggleMenuRow);
 
+        const addFeaturesToggleMenuRow = new Adw.SwitchRow({
+            title: _("Add Features toggle menu to Quick Settings"),
+            active: settings.get_boolean("add-features-toggle-menu")
+        });
+        group.add(addFeaturesToggleMenuRow);
+
         window._settings.bind("add-resolution-toggle-menu", addResolutionToggleMenuRow, "active", Gio.SettingsBindFlags.DEFAULT);
         window._settings.bind("add-refresh-rate-toggle-menu", addRefreshRateToggleMenuRow, "active", Gio.SettingsBindFlags.DEFAULT);
+        window._settings.bind("add-features-toggle-menu", addFeaturesToggleMenuRow, "active", Gio.SettingsBindFlags.DEFAULT);
     }
 
 }

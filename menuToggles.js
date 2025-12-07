@@ -194,3 +194,134 @@ export const RefreshRateMenuToggle = GObject.registerClass(
         }
     }
 );
+
+
+const FeaturePopupMenuItem = GObject.registerClass(
+    class FeaturePopupMenuItem extends PopupMenuItemWithSelectedAndPreferredMarks {
+        _init(text, monitorName, extensionObject, params) {
+            this._monitorName = monitorName;
+            this._extensionObject = extensionObject;
+
+            super._init(text, this.activated(), false, params);
+
+            this.connect("activate", (o, event) => {
+                this.toggle();
+                this._getMonitorConfigElementActivateCallback()();
+            });
+        }
+
+        allowed() {
+            throw new GObject.NotImplementedError();
+        }
+
+        activated() {
+            throw new GObject.NotImplementedError();
+        }
+
+        toggle() {
+            throw new GObject.NotImplementedError();
+        }
+
+        getCurrentState() {
+            throw new GObject.NotImplementedError();
+        }
+
+        _getMonitorConfigElementActivateCallback() {
+            return this._extensionObject.getMonitorConfigElementActivateCallback(this._monitorName);
+        }
+    }
+);
+
+const UnderscanningFeaturePopupMenuItem = GObject.registerClass(
+    class UnderscanningFeaturePopupMenuItem extends FeaturePopupMenuItem {
+        _init(monitorName, extensionObject, params) {
+            super._init(_("Adjust for TV"), monitorName, extensionObject, params);
+        }
+
+        allowed() {
+            return this.getCurrentState() != null;
+        }
+
+        activated() {
+            return this.getCurrentState();
+        }
+
+        toggle() {
+            this._extensionObject.monitorsConfig[this._monitorName][MonitorConfigParameters.FEATURES][MonitorFeatures.IS_UNDERSCANNING] = !this.getCurrentState();
+        }
+
+        getCurrentState() {
+            return this._extensionObject.monitorsConfig[this._monitorName][MonitorConfigParameters.FEATURES][MonitorFeatures.IS_UNDERSCANNING];
+        }
+    }
+);
+
+const ColorModeFeaturePopupMenuItem = GObject.registerClass(
+    class ColorModeFeaturePopupMenuItem extends FeaturePopupMenuItem {
+        _init(monitorName, extensionObject, params) {
+            super._init(_("HDR (High Dynamic Range)"), monitorName, extensionObject, params);
+        }
+
+        allowed() {
+            return this._extensionObject.monitorsConfig[this._monitorName][MonitorConfigParameters.FEATURES][MonitorFeatures.SUPPORTED_COLOR_MODES] >= 2;
+        }
+
+        activated() {
+            return this.getCurrentState() == 1;
+        }
+
+        toggle() {
+            this._extensionObject.monitorsConfig[this._monitorName][MonitorConfigParameters.FEATURES][MonitorFeatures.COLOR_MODE] = this.getCurrentState() == 1 ? 0 : 1;
+        }
+
+        getCurrentState() {
+            return this._extensionObject.monitorsConfig[this._monitorName][MonitorConfigParameters.FEATURES][MonitorFeatures.COLOR_MODE];
+        }
+    }
+);
+
+export const FeaturesMenuToggle = GObject.registerClass(
+    class FeaturesMenuToggle extends MonitorsConfigMenuToggle {
+        _init(extensionObject) {
+            super._init(
+                extensionObject,
+                {
+                    title: _("Features"),
+                    // subtitle: _("Example Subtitle"),
+                    iconName: "view-dual-symbolic",
+                    toggleMode: false,
+                    checked: true
+                }
+            );
+
+            this.menu.setHeader("view-dual-symbolic", _("Features"));
+        }
+
+        _updateItems() {
+            this._items.forEach((item, key) => item.destroy());
+            this._items.clear();
+
+            const monitorsConfig = this._extensionObject.monitorsConfig;
+            for (const monitorName in monitorsConfig){
+                const monitorConfigSubMenuMenuItem = new PopupMenu.PopupSubMenuMenuItem(monitorName);
+
+                const displayName = this._getMonitorDisplayName(monitorName);
+                monitorConfigSubMenuMenuItem.label.set_text(displayName);
+
+                const popupMenuItems = [
+                    new UnderscanningFeaturePopupMenuItem(monitorName, this._extensionObject),
+                    new ColorModeFeaturePopupMenuItem(monitorName, this._extensionObject)
+                ];
+
+                for (const popupMenuItem of popupMenuItems) {
+                    if (popupMenuItem.allowed()) {
+                        monitorConfigSubMenuMenuItem.menu.addMenuItem(popupMenuItem);
+                    }
+                }
+
+                this._items.set(monitorName, monitorConfigSubMenuMenuItem);
+                this._itemsSection.addMenuItem(monitorConfigSubMenuMenuItem);
+            }
+        }
+    }
+);

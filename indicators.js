@@ -28,3 +28,11 @@ export const RefreshRateIndicator = GObject.registerClass(
         }
     }
 );
+
+export const FeaturesIndicator = GObject.registerClass(
+    class FeaturesIndicator extends QuickSettings.SystemIndicator {
+        _init(extensionObject) {
+            super._init();
+        }
+    }
+);
