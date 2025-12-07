@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-15 01:34+0500\n"
+"POT-Creation-Date: 2025-12-07 18:37+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,16 +17,28 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: menuToggles.js:60
+#: menuToggles.js:64
 msgid "Display Settings"
 msgstr ""
 
-#: menuToggles.js:123 menuToggles.js:132
+#: menuToggles.js:138 menuToggles.js:147
 msgid "Resolution"
 msgstr ""
 
-#: menuToggles.js:156 menuToggles.js:165
+#: menuToggles.js:175 menuToggles.js:184
 msgid "Refresh Rate"
+msgstr ""
+
+#: menuToggles.js:238
+msgid "Adjust for TV"
+msgstr ""
+
+#: menuToggles.js:262
+msgid "HDR (High Dynamic Range)"
+msgstr ""
+
+#: menuToggles.js:289 menuToggles.js:297
+msgid "Features"
 msgstr ""
 
 #: prefs.js:25
@@ -35,4 +47,8 @@ msgstr ""
 
 #: prefs.js:31
 msgid "Add Refresh Rate toggle menu to Quick Settings"
+msgstr ""
+
+#: prefs.js:37
+msgid "Add Features toggle menu to Quick Settings"
 msgstr ""
