@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: quick-settings-resolution-and-refresh-rate\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-12-07 18:37+0500\n"
-"PO-Revision-Date: 2025-12-07 13:54\n"
+"PO-Revision-Date: 2025-12-08 00:26\n"
 "Last-Translator: \n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
@@ -31,15 +31,15 @@ msgstr "更新率"
 
 #: menuToggles.js:238
 msgid "Adjust for TV"
-msgstr ""
+msgstr "對電視調整"
 
 #: menuToggles.js:262
 msgid "HDR (High Dynamic Range)"
-msgstr ""
+msgstr "HDR（高動態範圍）"
 
 #: menuToggles.js:289 menuToggles.js:297
 msgid "Features"
-msgstr ""
+msgstr "顯示特性"
 
 #: prefs.js:25
 msgid "Add Resolution toggle menu to Quick Settings"
@@ -51,5 +51,5 @@ msgstr "在快速設定中增加更新率切換選單"
 
 #: prefs.js:37
 msgid "Add Features toggle menu to Quick Settings"
-msgstr ""
+msgstr "在快速設定中增加顯示特性切換選單"
 
