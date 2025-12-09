@@ -146,31 +146,41 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
         return this._monitorsConfigSerialCache;
     }
 
-    getMonitorConfigElementActivateCallback(monitorName, monitorConfigElement, monitorConfigParameter) {
+    getMonitorConfigElementActivateCallback(monitorNameToUpdate, monitorConfigElement, monitorConfigParameter) {
         let askToUpdate = true;
 
-        let settings = this.monitorsConfig[monitorName][MonitorConfigParameters.SETTINGS];
+        let updatedMonitorsConfig = []
+        for (const monitorName in this.monitorsConfig) {
+            const settings = this.monitorsConfig[monitorName][MonitorConfigParameters.SETTINGS];
+
+            let monitorConfigString = null;
+            if (monitorName === monitorNameToUpdate) {
+                monitorConfigString = this._generateMonitorConfigStringFor(monitorName, monitorConfigElement, monitorConfigParameter);
+            } else {
+                monitorConfigString = this._generateMonitorConfigStringFor(monitorName, this._getCurrentResolutionConfigByMonitorName(monitorName), MonitorConfigParameters.RESOLUTION);
+            }
+
+            updatedMonitorsConfig.push([
+                settings[0], settings[1], settings[2], settings[3], settings[4],
+                [
+                    [
+                        monitorName,
+                        monitorConfigString,
+                        {
+                            // I don't know why the parameter is called differently here :(
+                            [MonitorFeatures.UNDERSCANNING]: GLib.Variant.new_boolean(this.monitorsConfig[monitorName][MonitorConfigParameters.FEATURES][MonitorFeatures.IS_UNDERSCANNING]),
+                            [MonitorFeatures.COLOR_MODE]: GLib.Variant.new_uint32(this.monitorsConfig[monitorName][MonitorConfigParameters.FEATURES][MonitorFeatures.COLOR_MODE]),
+                        }
+                    ]
+                ]
+            ]);
+        }
 
         const callback = () => {
             this._monitorsConfigProxy.ApplyMonitorsConfigRemote(
                 this.monitorsConfigSerial,
                 (askToUpdate ? 2 : 1),
-                [
-                    [
-                        settings[0], settings[1], settings[2], settings[3], settings[4],
-                        [
-                            [
-                                monitorName,
-                                this._generateMonitorConfigStringFor(monitorName, monitorConfigElement, monitorConfigParameter),
-                                {
-                                    // I don't know why the parameter is called differently here :(
-                                    [MonitorFeatures.UNDERSCANNING]: GLib.Variant.new_boolean(this.monitorsConfig[monitorName][MonitorConfigParameters.FEATURES][MonitorFeatures.IS_UNDERSCANNING]),
-                                    [MonitorFeatures.COLOR_MODE]: GLib.Variant.new_uint32(this.monitorsConfig[monitorName][MonitorConfigParameters.FEATURES][MonitorFeatures.COLOR_MODE]),
-                                }
-                            ]
-                        ]
-                    ]
-                ],
+                updatedMonitorsConfig,
                 {},
                 () => {},
             );
