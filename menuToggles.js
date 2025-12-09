@@ -239,7 +239,7 @@ const UnderscanningFeaturePopupMenuItem = GObject.registerClass(
         }
 
         allowed() {
-            return this.getCurrentState() != null;
+            return this.getCurrentState() !== null;
         }
 
         activated() {
