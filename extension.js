@@ -228,18 +228,26 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
     }
 
     _parseMonitorsConfig(data) {
-        if (data.length === 0) return {};
+        const monitorsConfig = {};
+
+        if (data.length === 0) return monitorsConfig;
 
         const serial = data[0];
 
-        const monitorsConfig = {};
+        for (let i = 0; i < data[2].length; i++) {
+            const settings = data[2][i]
+            const name = settings[5][0][0]
+
+            monitorsConfig[name] = {
+                [MonitorConfigParameters.SETTINGS]: settings
+            };
+        }
+
         for (let i = 0; i < data[1].length; i++) {
-            let details = data[1][i]
-            let settings = data[2][i]
+            const details = data[1][i]
+            const name = details[0][0];
 
-            let name = details[0][0];
-
-            let resolutions = [];
+            const resolutions = [];
             details[1].forEach((el) => {
                 let isCurrent = el[6]["is-current"]?.unpack() == true ?? false;
                 let isPreferred = el[6]["is-preferred"]?.unpack() == true ?? false;
@@ -267,27 +275,26 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
                     resolutions.push(resolution)
                 }
 
-                let savedRefreshRate = resolution["refreshRates"].find(item => item["value"] === refreshRate["value"]);
+                let savedRefreshRate = resolution[MonitorConfigParameters.REFRESH_RATE].find(item => item["value"] === refreshRate["value"]);
                 if (savedRefreshRate) {
                     if (isCurrent) savedRefreshRate["isCurrent"] = isCurrent
                     if (isPreferred) savedRefreshRate["isPreferred"] = isPreferred
                 } else {
-                    resolution["refreshRates"].push(refreshRate);
+                    resolution[MonitorConfigParameters.REFRESH_RATE].push(refreshRate);
                 }
             });
-
-            let features = this._extractMonitorsFeatures(details[2]);
+            const features = this._extractMonitorsFeatures(details[2]);
 
             monitorsConfig[name] = {
-                "resolutions": resolutions,
-                "features": features,
-                "settings": settings
+                ...monitorsConfig[name],
+                [MonitorConfigParameters.RESOLUTION]: resolutions,
+                [MonitorConfigParameters.FEATURES]: features,
             };
         }
 
         return {
-            "monitorsConfig": monitorsConfig,
-            "serial": serial
+            "serial": serial,
+            "monitorsConfig": monitorsConfig
         };
     }
 
