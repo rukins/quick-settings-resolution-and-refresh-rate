@@ -33,7 +33,7 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
 
     _settings = null;
 
-    _monitorsConfigCache = {};
+    _monitorsConfigCache = new Map();
     _monitorsConfigSerialCache = null;
     _monitorsConfigProxy = null;
 
@@ -150,8 +150,8 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
         let askToUpdate = true;
 
         let updatedMonitorsConfig = []
-        for (const monitorName in this.monitorsConfig) {
-            const settings = this.monitorsConfig[monitorName][MonitorConfigParameters.SETTINGS];
+        for (const monitorName of this.monitorsConfig.keys()) {
+            const settings = this.monitorsConfig.get(monitorName)[MonitorConfigParameters.SETTINGS];
 
             let monitorConfigString = null;
             if (monitorName === monitorNameToUpdate) {
@@ -168,8 +168,8 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
                         monitorConfigString,
                         {
                             // I don't know why the parameter is called differently here :(
-                            [MonitorFeatures.UNDERSCANNING]: GLib.Variant.new_boolean(this.monitorsConfig[monitorName][MonitorConfigParameters.FEATURES][MonitorFeatures.IS_UNDERSCANNING]),
-                            [MonitorFeatures.COLOR_MODE]: GLib.Variant.new_uint32(this.monitorsConfig[monitorName][MonitorConfigParameters.FEATURES][MonitorFeatures.COLOR_MODE]),
+                            [MonitorFeatures.UNDERSCANNING]: GLib.Variant.new_boolean(this.monitorsConfig.get(monitorName)[MonitorConfigParameters.FEATURES][MonitorFeatures.IS_UNDERSCANNING]),
+                            [MonitorFeatures.COLOR_MODE]: GLib.Variant.new_uint32(this.monitorsConfig.get(monitorName)[MonitorConfigParameters.FEATURES][MonitorFeatures.COLOR_MODE]),
                         }
                     ]
                 ]
@@ -211,7 +211,7 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
     }
 
     _getCurrentResolutionConfigByMonitorName(monitorName) {
-        return this.monitorsConfig[monitorName][MonitorConfigParameters.RESOLUTION].find(item => item.isCurrent === true);
+        return this.monitorsConfig.get(monitorName)[MonitorConfigParameters.RESOLUTION].find(item => item.isCurrent === true);
     }
 
     _updateMonitorsConfig() {
@@ -228,20 +228,11 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
     }
 
     _parseMonitorsConfig(data) {
-        const monitorsConfig = {};
+        const monitorsConfig = new Map();
 
         if (data.length === 0) return monitorsConfig;
 
         const serial = data[0];
-
-        for (let i = 0; i < data[2].length; i++) {
-            const settings = data[2][i]
-            const name = settings[5][0][0]
-
-            monitorsConfig[name] = {
-                [MonitorConfigParameters.SETTINGS]: settings
-            };
-        }
 
         for (let i = 0; i < data[1].length; i++) {
             const details = data[1][i]
@@ -285,11 +276,20 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
             });
             const features = this._extractMonitorsFeatures(details[2]);
 
-            monitorsConfig[name] = {
-                ...monitorsConfig[name],
+            monitorsConfig.set(name, {
                 [MonitorConfigParameters.RESOLUTION]: resolutions,
                 [MonitorConfigParameters.FEATURES]: features,
-            };
+            });
+        }
+
+        for (let i = 0; i < data[2].length; i++) {
+            const settings = data[2][i]
+            const name = settings[5][0][0]
+
+            monitorsConfig.set(name, {
+                ...monitorsConfig.get(name),
+                [MonitorConfigParameters.SETTINGS]: settings
+            });
         }
 
         return {

@@ -77,7 +77,7 @@ const MonitorsConfigMenuToggle = GObject.registerClass({
             this._items.clear();
 
             const monitorsConfig = this._extensionObject.monitorsConfig;
-            for (const monitorName in monitorsConfig){
+            for (const monitorName of monitorsConfig.keys()) {
                 const monitorConfigSubMenuMenuItem = new PopupMenu.PopupSubMenuMenuItem(monitorName);
 
                 const displayName = this._getMonitorDisplayName(monitorName);
@@ -106,7 +106,7 @@ const MonitorsConfigMenuToggle = GObject.registerClass({
         }
 
         _getMonitorDisplayName(monitorName) {
-            const displayName = this._extensionObject.monitorsConfig[monitorName][MonitorConfigParameters.FEATURES][MonitorFeatures.DISPLAY_NAME];
+            const displayName = this._extensionObject.monitorsConfig.get(monitorName)[MonitorConfigParameters.FEATURES][MonitorFeatures.DISPLAY_NAME];
             return displayName ? displayName : monitorName;
         }
 
@@ -157,7 +157,7 @@ export const ResolutionMenuToggle = GObject.registerClass(
         }
 
         _getMonitorConfigElements(monitorName) {
-            return this._extensionObject.monitorsConfig[monitorName][MonitorConfigParameters.RESOLUTION]
+            return this._extensionObject.monitorsConfig.get(monitorName)[MonitorConfigParameters.RESOLUTION]
         }
 
         _getMonitorConfigElementName(monitorConfigElement) {
@@ -185,7 +185,7 @@ export const RefreshRateMenuToggle = GObject.registerClass(
         }
 
         _getMonitorConfigElements(monitorName) {
-            let currentResolution = this._extensionObject.monitorsConfig[monitorName][MonitorConfigParameters.RESOLUTION].find(el => el.isCurrent);
+            let currentResolution = this._extensionObject.monitorsConfig.get(monitorName)[MonitorConfigParameters.RESOLUTION].find(el => el.isCurrent);
             return currentResolution[MonitorConfigParameters.REFRESH_RATE]
         }
 
@@ -247,11 +247,11 @@ const UnderscanningFeaturePopupMenuItem = GObject.registerClass(
         }
 
         toggle() {
-            this._extensionObject.monitorsConfig[this._monitorName][MonitorConfigParameters.FEATURES][MonitorFeatures.IS_UNDERSCANNING] = !this.getCurrentState();
+            this._extensionObject.monitorsConfig.get(this._monitorName)[MonitorConfigParameters.FEATURES][MonitorFeatures.IS_UNDERSCANNING] = !this.getCurrentState();
         }
 
         getCurrentState() {
-            return this._extensionObject.monitorsConfig[this._monitorName][MonitorConfigParameters.FEATURES][MonitorFeatures.IS_UNDERSCANNING];
+            return this._extensionObject.monitorsConfig.get(this._monitorName)[MonitorConfigParameters.FEATURES][MonitorFeatures.IS_UNDERSCANNING];
         }
     }
 );
@@ -263,7 +263,7 @@ const ColorModeFeaturePopupMenuItem = GObject.registerClass(
         }
 
         allowed() {
-            const supportedColorModes = this._extensionObject.monitorsConfig[this._monitorName][MonitorConfigParameters.FEATURES][MonitorFeatures.SUPPORTED_COLOR_MODES];
+            const supportedColorModes = this._extensionObject.monitorsConfig.get(this._monitorName)[MonitorConfigParameters.FEATURES][MonitorFeatures.SUPPORTED_COLOR_MODES];
             if (!supportedColorModes) {
                 return false;
             }
@@ -276,11 +276,11 @@ const ColorModeFeaturePopupMenuItem = GObject.registerClass(
         }
 
         toggle() {
-            this._extensionObject.monitorsConfig[this._monitorName][MonitorConfigParameters.FEATURES][MonitorFeatures.COLOR_MODE] = this.getCurrentState() == 1 ? 0 : 1;
+            this._extensionObject.monitorsConfig.get(this._monitorName)[MonitorConfigParameters.FEATURES][MonitorFeatures.COLOR_MODE] = this.getCurrentState() == 1 ? 0 : 1;
         }
 
         getCurrentState() {
-            return this._extensionObject.monitorsConfig[this._monitorName][MonitorConfigParameters.FEATURES][MonitorFeatures.COLOR_MODE];
+            return this._extensionObject.monitorsConfig.get(this._monitorName)[MonitorConfigParameters.FEATURES][MonitorFeatures.COLOR_MODE];
         }
     }
 );
@@ -307,7 +307,7 @@ export const FeaturesMenuToggle = GObject.registerClass(
             this._items.clear();
 
             const monitorsConfig = this._extensionObject.monitorsConfig;
-            for (const monitorName in monitorsConfig){
+            for (const monitorName of monitorsConfig.keys()) {
                 const monitorConfigSubMenuMenuItem = new PopupMenu.PopupSubMenuMenuItem(monitorName);
 
                 const displayName = this._getMonitorDisplayName(monitorName);
