@@ -157,7 +157,7 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
             if (monitorName === monitorNameToUpdate) {
                 monitorConfigString = this._generateMonitorConfigStringFor(monitorName, monitorConfigElement, monitorConfigParameter);
             } else {
-                monitorConfigString = this._generateMonitorConfigStringFor(monitorName, this._getCurrentResolutionConfigByMonitorName(monitorName), MonitorConfigParameters.RESOLUTION);
+                monitorConfigString = this._generateMonitorConfigStringFor(monitorName, this.getCurrentResolutionConfigByMonitorName(monitorName), MonitorConfigParameters.RESOLUTION);
             }
 
             updatedMonitorsConfig.push([
@@ -189,29 +189,28 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
         return callback;
     }
 
+    getCurrentResolutionAndRefreshRateConfigByMonitorName(monitorName) {
+        const currentResolutionConfig = this.getCurrentResolutionConfigByMonitorName(monitorName);
+        const currentRefreshRateConfig = currentResolutionConfig[MonitorConfigParameters.REFRESH_RATE].find(item => item.isCurrent === true);
+        return [currentResolutionConfig, currentRefreshRateConfig];
+    }
+
+    getCurrentResolutionConfigByMonitorName(monitorName) {
+        return this.monitorsConfig.get(monitorName)[MonitorConfigParameters.RESOLUTION].find(item => item.isCurrent === true);
+    }
+
     // generates string in format - "{resolution.horizontally}x{resolution.vertically}@{refreshRate.value}"
     _generateMonitorConfigStringFor(monitorName, monitorConfigElement, monitorConfigParameter) {
         if (monitorConfigParameter === MonitorConfigParameters.RESOLUTION) {
             return `${monitorConfigElement.horizontally}x${monitorConfigElement.vertically}@${monitorConfigElement[MonitorConfigParameters.REFRESH_RATE][0].value}`;
         } else if (monitorConfigParameter === MonitorConfigParameters.REFRESH_RATE) {
-            const currentResolutionConfig = this._getCurrentResolutionConfigByMonitorName(monitorName);
-
+            const currentResolutionConfig = this.getCurrentResolutionConfigByMonitorName(monitorName);
             return `${currentResolutionConfig.horizontally}x${currentResolutionConfig.vertically}@${monitorConfigElement.value}`;
         }
 
-        // return currents by default, for cases where we change features
-        const [currentResolutionConfig, currentRefreshRateConfig] = this._getCurrentResolutionAndRefreshRateConfigByMonitorName(monitorName);
+        // return current values by default, for cases where we change features
+        const [currentResolutionConfig, currentRefreshRateConfig] = this.getCurrentResolutionAndRefreshRateConfigByMonitorName(monitorName);
         return `${currentResolutionConfig.horizontally}x${currentResolutionConfig.vertically}@${currentRefreshRateConfig.value}`;
-    }
-
-    _getCurrentResolutionAndRefreshRateConfigByMonitorName(monitorName) {
-        const currentResolutionConfig = this._getCurrentResolutionConfigByMonitorName(monitorName);
-        const currentRefreshRateConfig = currentResolutionConfig[MonitorConfigParameters.REFRESH_RATE].find(item => item.isCurrent === true);
-        return [currentResolutionConfig, currentRefreshRateConfig];
-    }
-
-    _getCurrentResolutionConfigByMonitorName(monitorName) {
-        return this.monitorsConfig.get(monitorName)[MonitorConfigParameters.RESOLUTION].find(item => item.isCurrent === true);
     }
 
     _updateMonitorsConfig() {

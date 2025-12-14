@@ -185,8 +185,8 @@ export const RefreshRateMenuToggle = GObject.registerClass(
         }
 
         _getMonitorConfigElements(monitorName) {
-            let currentResolution = this._extensionObject.monitorsConfig.get(monitorName)[MonitorConfigParameters.RESOLUTION].find(el => el.isCurrent);
-            return currentResolution[MonitorConfigParameters.REFRESH_RATE]
+            const currentResolutionConfig = this._extensionObject.getCurrentResolutionConfigByMonitorName(monitorName);
+            return currentResolutionConfig[MonitorConfigParameters.REFRESH_RATE]
         }
 
         _getMonitorConfigElementName(monitorConfigElement) {
