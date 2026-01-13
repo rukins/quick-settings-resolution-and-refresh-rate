@@ -214,6 +214,9 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
     }
 
     _updateMonitorsConfig() {
+        this._monitorsConfigProxy.GetResourcesRemote((res) => {
+        });
+
         // using Remote instead of Sync because the interface freezes with Sync
         this._monitorsConfigProxy.GetCurrentStateRemote((res) => {
             const {monitorsConfig, serial} = this._parseMonitorsConfig(res);
