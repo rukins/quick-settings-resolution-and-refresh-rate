@@ -47,7 +47,7 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
         this._settings = this.getSettings();
 
         const MonitorsConfigProxyWrapper = Gio.DBusProxy.makeProxyWrapper(
-            FileUtils.loadXML(
+            await FileUtils.loadXML(
                 DISPLAY_CONFIG_INTERFACE, GLib.build_filenamev([this.metadata.path])
             )
         );
