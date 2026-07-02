@@ -202,7 +202,11 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
     // generates string in format - "{resolution.horizontally}x{resolution.vertically}@{refreshRate.value}"
     _generateMonitorConfigStringFor(monitorName, monitorConfigElement, monitorConfigParameter) {
         if (monitorConfigParameter === MonitorConfigParameters.RESOLUTION) {
-            return `${monitorConfigElement.horizontally}x${monitorConfigElement.vertically}@${monitorConfigElement[MonitorConfigParameters.REFRESH_RATE][0].value}`;
+            let currentRefreshRateConfig = monitorConfigElement[MonitorConfigParameters.REFRESH_RATE].find(item => item.isCurrent === true);
+            if (!currentRefreshRateConfig) {
+                currentRefreshRateConfig = monitorConfigElement[MonitorConfigParameters.REFRESH_RATE][0];
+            }
+            return `${monitorConfigElement.horizontally}x${monitorConfigElement.vertically}@${currentRefreshRateConfig.value}`;
         } else if (monitorConfigParameter === MonitorConfigParameters.REFRESH_RATE) {
             const currentResolutionConfig = this.getCurrentResolutionConfigByMonitorName(monitorName);
             return `${currentResolutionConfig.horizontally}x${currentResolutionConfig.vertically}@${monitorConfigElement.value}`;
