@@ -2,7 +2,6 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import * as FileUtils from "./fileUtils.js";
@@ -18,6 +17,7 @@ export const MonitorConfigParameters = Object.freeze({
     REFRESH_RATE: "refreshRates",
     FEATURES: "features",
     SETTINGS: "settings",
+    ORDER: "order",
 });
 
 export const MonitorFeatures = Object.freeze({
@@ -230,7 +230,7 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
     }
 
     _parseMonitorsConfig(data) {
-        const monitorsConfig = new Map();
+        let monitorsConfig = new Map();
 
         if (data.length === 0) return monitorsConfig;
 
@@ -290,9 +290,12 @@ export default class QuickSettingsResolutionAndRefreshRateExtension extends Exte
 
             monitorsConfig.set(name, {
                 ...monitorsConfig.get(name),
-                [MonitorConfigParameters.SETTINGS]: settings
+                [MonitorConfigParameters.SETTINGS]: settings,
+                [MonitorConfigParameters.ORDER]: i
             });
         }
+
+        monitorsConfig = new Map([...monitorsConfig.entries()].sort((a, b) => a[1][MonitorConfigParameters.ORDER] - b[1][MonitorConfigParameters.ORDER]));
 
         return {
             "serial": serial,
